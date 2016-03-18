@@ -1,0 +1,45 @@
+<div class="page-header">
+    <h1>Tous les plats</h1>
+</div>
+
+<div class="list-group" ng-repeat = "plat in plats | orderBy :'-upvotes'">
+    <span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(plat)"></span>
+    {{plat.upvotes}}
+        <span style="margin-left:10px; font-size:20px;">
+          <a href="#/plats/{{plat._id}}">{{plat.title}}</a>
+          <a href="#">
+              <span class="glyphicon glyphicon-remove"></span>
+          </a>
+        </span>
+</div>
+<hr>
+<form ng-submit="addPlat()" style="margin-top:30px;">
+
+    <div class="form-group">
+        <input class="form-control" placeholder="Title" type="text" ng-model="title">
+    </div>
+
+    <div class="form-group">
+        <textarea class="form-control" placeholder="Description" rows="2" ng-model="description"></textarea>
+    </div>
+
+    <div class="form-group">
+        <input class="form-control" placeholder="Image Link" type="text" ng-model="image">
+    </div>
+
+    <div class="form-group">
+        <select class="form-control" ng-model="type">
+            <option>Entrée</option>
+            <option>Dessert</option>
+            <option>Soupe</option>
+            <option>Fruit</option>
+            <option>Boisson</option>
+            <option>Plat traditionnel</option>
+            <option>Plat végétarien</option>
+            <option>Pâte</option>
+            <option>Pizza</option>
+        </select><br>
+    </div>
+
+    <button class="btn btn-primary" type="submit" ng-click="addPlat">Ajouter un plat</button>
+</form>

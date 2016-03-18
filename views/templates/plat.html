@@ -1,0 +1,63 @@
+<div class="page-header">
+    <h2>
+        <span>{{plat.title}}</span>
+    </h2>
+</div>
+<div>
+    <ul class="list-group">
+        <li class="list-group-item">Image : <a href={{plat.image}}>{{plat.image}}</a></li>
+        <li class="list-group-item">Description : {{plat.description}}</li>
+        <li class="list-group-item">Type : {{plat.type}}</li>
+    </ul>
+</div>
+<hr>
+<p>La disponibilité du plat dans les semaines :</p>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Date de lundi</th>
+        <th>Lundi</th>
+        <th>Mardi</th>
+        <th>Mercredi</th>
+        <th>Jeudi</th>
+        <th>Vendredi</th>
+        <th>Samedi</th>
+        <th>Opérations</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="dispo in plat.dispos | orderBy:'-lundiDate'">
+        <td>{{dispo.lundiDate| date:'dd/MM/yyyy' }}</td>
+        <td>{{dispo.lundi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.mardi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.mercredi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.jeudi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.vendredi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.samedi === true ? "Oui" : ""}}</td>
+        <td><button type="button" class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-remove"></span> Remove
+        </button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<hr>
+<div ng-hide="isLoggedIn()">
+    <h3>Vous devez <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> avant d'ajouter la disponibilité.</h3>
+</div>
+<form ng-submit="addDispo()" ng-show="isLoggedIn()" style="margin-top:30px;">
+    <div class="form-group">
+        Mettez une date de Lundi de la semaine
+        <input type="date" class="form-control" ng-model="dispo.lundiDate" />
+    </div>
+    <div>
+        <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.lundi">Lundi</label>
+        <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.mardi">Mardi</label>
+        <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.mercredi">Mercredi</label>
+        <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.jeudi">Jeudi</label>
+        <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.vendredi">Vendredi</label>
+        <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.samedi">Samedi</label>
+    </div>
+    <hr>
+    <button class="btn btn-primary" type="submit" name="button">Ajouter disponibilité</button>
+</form>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SPC serveur</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+    <script src="/javascripts/angular.min.js"></script>
+    <script src="/javascripts/angularApp.js"></script>
+    <script src="/javascripts/angularControllers.js"></script>
+    <script src="/javascripts/angular-ui-router.js"></script>
+
+    <style>
+      .glyphicon-thumbs-up:hover{cursor: hand;}
+    </style>
+  </head>
+  <body ng-app ="SPCserver" ng-controller="MainCtrl" class="container fluid">
+
+  <nav class="navbar navbar-default" ng-controller="NavCtrl">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/#/home">WebSiteName</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/#/home">Plats</a></li>
+        <li><a href="">Utilisateurs</a></li>
+        <li><a href="">Précommandes</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li ng-hide="isLoggedIn()"><a href="/#/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+        <li ng-hide="isLoggedIn()"><a href="/#/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+        <li ng-show="isLoggedIn()"><a><span class="glyphicon glyphicon-user"></span>User :{{ currentUser() }}</a></li>
+        <li ng-show="isLoggedIn()"><a href="" ng-click="logOut()"><span class="glyphicon glyphicon-log-out"></span>Log Out</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <div ui-view></div>
+    </div>
+  </div>
+
+  <script type="text/ng-template" id ="/home.html">
+    <div class="page-header">
+      <h1>Tous les plats</h1>
+    </div>
+
+    <div class="list-group" ng-repeat = "plat in plats | orderBy :'-upvotes'">
+      <span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(plat)"></span>
+      {{plat.upvotes}}
+        <span style="margin-left:10px; font-size:20px;">
+          <a href="#/plats/{{plat._id}}">{{plat.title}}</a>
+          <a href="#" ng-click="delete(plat._id)">
+            <span class="glyphicon glyphicon-remove"></span>
+          </a>
+        </span>
+    </div>
+    <hr>
+    <div ng-hide="isLoggedIn()">
+      <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a plat.</h3>
+    </div>
+    <form ng-submit="addPlat()" ng-show="isLoggedIn()" style="margin-top:30px;">
+
+      <div class="form-group">
+        <input class="form-control" placeholder="Title" type="text" ng-model="title">
+      </div>
+
+      <div class="form-group">
+        <textarea class="form-control" placeholder="Description" rows="2" ng-model="description"></textarea>
+      </div>
+
+      <div class="form-group">
+        <input class="form-control" placeholder="Image Link" type="text" ng-model="image">
+      </div>
+
+      <div class="form-group">
+        <select class="form-control" ng-model="type">
+          <option>Entrée</option>
+          <option>Dessert</option>
+          <option>Soupe</option>
+          <option>Fruit</option>
+          <option>Boisson</option>
+          <option>Plat traditionnel</option>
+          <option>Plat végétarien</option>
+          <option>Pâte</option>
+          <option>Pizza</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" type="submit" ng-click="addPlat">Ajouter un plat</button>
+    </form>
+  </script>
+
+  <script type="text/ng-template" id ="/plats.html">
+    <div class="page-header">
+      <h2>
+        <span>{{plat.title}}</span>
+      </h2>
+    </div>
+    <div>
+    <ul class="list-group">
+      <li class="list-group-item">Image : <a href={{plat.image}}>{{plat.image}}</a></li>
+      <li class="list-group-item">Description : {{plat.description}}</li>
+      <li class="list-group-item">Type : {{plat.type}}</li>
+    </ul>
+    </div>
+    <hr>
+    <p>La disponibilité du plat dans les semaines :</p>
+    <table class="table table-bordered">
+      <thead>
+      <tr>
+        <th>Date de lundi</th>
+        <th>Lundi</th>
+        <th>Mardi</th>
+        <th>Mercredi</th>
+        <th>Jeudi</th>
+        <th>Vendredi</th>
+        <th>Samedi</th>
+        <th>Opérations</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="dispo in plat.dispos | orderBy:'-lundiDate'">
+        <td>{{dispo.lundiDate| date:'dd/MM/yyyy' }}</td>
+        <td>{{dispo.lundi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.mardi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.mercredi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.jeudi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.vendredi === true ? "Oui" : ""}}</td>
+        <td>{{dispo.samedi === true ? "Oui" : ""}}</td>
+        <td><button type="button" class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-remove"></span> Remove
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <hr>
+    <div ng-hide="isLoggedIn()">
+      <h3>Vous devez <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> avant d'ajouter la disponibilité.</h3>
+    </div>
+    <form ng-submit="addDispo()" ng-show="isLoggedIn()" style="margin-top:30px;">
+      <div class="form-group">
+        Mettez une date de Lundi de la semaine
+        <input type="date" class="form-control" ng-model="dispo.lundiDate" />
+      </div>
+      <div>
+      <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.lundi">Lundi</label>
+      <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.mardi">Mardi</label>
+      <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.mercredi">Mercredi</label>
+      <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.jeudi">Jeudi</label>
+      <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.vendredi">Vendredi</label>
+      <label class="checkbox-inline"><input type="checkbox" ng-model="dispo.samedi">Samedi</label>
+     </div>
+      <hr>
+      <button class="btn btn-primary" type="submit" name="button">Ajouter disponibilité</button>
+    </form>
+  </script>
+
+  <script type="text/ng-template" id="/register.html">
+    <div class="page-header">
+      <h1>SPC serveur</h1>
+    </div>
+
+    <div ng-show="error" class="alert alert-danger row">
+      <span>{{ error.message }}</span>
+    </div>
+
+    <form ng-submit="register()"
+          style="margin-top:30px;">
+      <h3>Register</h3>
+
+      <div class="form-group">
+        <input type="text"
+               class="form-control"
+               placeholder="Username"
+               ng-model="user.username"></input>
+      </div>
+      <div class="form-group">
+        <input type="password"
+               class="form-control"
+               placeholder="Password"
+               ng-model="user.password"></input>
+      </div>
+      <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+  </script>
+
+  <script type="text/ng-template" id="/login.html">
+    <div class="page-header">
+      <h1>SPC serveur</h1>
+    </div>
+
+    <div ng-show="error" class="alert alert-danger row">
+      <span>{{ error.message }}</span>
+    </div>
+
+    <form ng-submit="logIn()"
+          style="margin-top:30px;">
+      <h3>Log In</h3>
+
+      <div class="form-group">
+        <input type="text"
+               class="form-control"
+               placeholder="Username"
+               ng-model="user.username"></input>
+      </div>
+      <div class="form-group">
+        <input type="password"
+               class="form-control"
+               placeholder="Password"
+               ng-model="user.password"></input>
+      </div>
+      <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+  </script>
+  </body>
+</html>
