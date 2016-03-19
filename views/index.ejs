@@ -18,10 +18,11 @@
   <nav class="navbar navbar-default" ng-controller="NavCtrl">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="/#/home">WebSiteName</a>
+        <a class="navbar-brand" href="/#/home">SPC serveur</a>
       </div>
       <ul class="nav navbar-nav">
-        <li class="active"><a href="/#/plats">Plats</a></li>
+        <li class="active"><a href="/#/home">Accueil</a></li>
+        <li><a href="/#/plats">Plats</a></li>
         <li><a href="/#/precmds">Précommandes</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -61,7 +62,7 @@
         <span style="margin-left:10px; font-size:20px;">
           <a href="#/plats/{{plat._id}}">{{plat.title}}</a>
           <a href="#" ng-click="delete(plat._id)">
-            <span class="glyphicon glyphicon-remove"></span>
+            <span ng-show="isAdmin()" class="glyphicon glyphicon-remove"></span>
           </a>
         </span>
     </div>
@@ -69,7 +70,10 @@
     <div ng-hide="isLoggedIn()">
       <h3>Vous devez <a href="/#/login">Se connecter</a> ou <a href="/#/register">S'inscrire</a> avant d'ajouter un plat.</h3>
     </div>
-    <form ng-submit="addPlat()" ng-show="isLoggedIn()" style="margin-top:30px;">
+    <div ng-hide="isAdmin()">
+      <h4><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Attention : seulement les administrateurs peuvent faire une opération.</h4>
+    </div>
+    <form ng-submit="addPlat()" ng-show="isAdmin()" style="margin-top:30px;">
 
       <div class="form-group">
         <input class="form-control" placeholder="Title" type="text" ng-model="title">
@@ -138,7 +142,7 @@
         <td>{{dispo.jeudi === true ? "Oui" : ""}}</td>
         <td>{{dispo.vendredi === true ? "Oui" : ""}}</td>
         <td>{{dispo.samedi === true ? "Oui" : ""}}</td>
-        <td><button type="button" class="btn btn-default btn-sm">
+        <td><button ng-show="isAdmin()" type="button" class="btn btn-default btn-sm">
             <span class="glyphicon glyphicon-remove"></span> Remove
           </button>
         </td>
@@ -149,7 +153,10 @@
     <div ng-hide="isLoggedIn()">
       <h3>Vous devez <a href="/#/login">Se connecter</a> ou <a href="/#/register">S'inscrire</a> avant d'ajouter la disponibilité.</h3>
     </div>
-    <form ng-submit="addDispo()" ng-show="isLoggedIn()" style="margin-top:30px;">
+    <div ng-hide="isAdmin()">
+      <h4><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Attention : seulement les administrateurs peuvent faire une opération.</h4>
+    </div>
+    <form ng-submit="addDispo()" ng-show="isAdmin()" style="margin-top:30px;">
       <div class="form-group">
         Mettez une date de Lundi de la semaine
         <input type="date" class="form-control" ng-model="dispo.lundiDate" />
@@ -180,7 +187,7 @@
         <span style="margin-left:10px; font-size:20px;">
           <a>{{precmd._id}} - {{precmd.horaire}}</a>
           <a href="#" ng-click="complete(plat._id)" ng-show="precmd.status">
-            <span class="glyphicon glyphicon-ok"></span>
+            <span ng-show="isAdmin()" class="glyphicon glyphicon-ok"></span>
           </a>
         </span>
     </div>

@@ -144,6 +144,17 @@ app.factory('auth', ['$http', '$window', function($http, $window){
             }
         };
 
+        auth.isAdmin = function(){
+            /*
+             if(auth.isLoggedIn()){
+             var token = auth.getToken();
+             var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+             return payload.admin;
+             }*/
+            return auth.currentUser()=="admin";
+        };
+
         auth.register = function(user){
             return $http.post('/register', user).success(function(data){
                 auth.saveToken(data.token);
@@ -200,6 +211,8 @@ app.controller ('MainCtrl',['$scope','plats','auth',
     function($scope,plats,auth)
     {
         $scope.isLoggedIn = auth.isLoggedIn;
+        $scope.isAdmin = auth.isAdmin;
+        //console.log($scope.isAdmin());
         $scope.plats=plats.plats;
 
         $scope.addPlat = function ()
@@ -234,6 +247,7 @@ app.controller('PlatCtrl',['$scope','plats','plat','auth',
     {
         $scope.plat=plat;
         $scope.isLoggedIn = auth.isLoggedIn;
+        $scope.isAdmin = auth.isAdmin;
         $scope.addDispo = function(){
             if($scope.dispo === '') { return; }
             plats.addDispo(plat._id, $scope.dispo)
@@ -249,6 +263,7 @@ app.controller ('PrecmdCtrl',['$scope','precmds','auth',
     function($scope,precmds,auth)
     {
         $scope.isLoggedIn = auth.isLoggedIn;
+        $scope.isAdmin = auth.isAdmin;
         $scope.precmds=precmds.precmds;
 
 
