@@ -60,6 +60,57 @@ app.factory('plats',['$http','auth',
 
     }]);
 
+app.factory('precmds',['$http','auth',
+    function($http, auth)
+    {
+        var precmdFactory=
+        {
+            precmds:[]
+
+        };
+        //retrieve precmds
+        precmdFactory.getAll = function() {
+            return $http.get('/precmds').success(function(data){
+                angular.copy(data, precmdFactory.precmds);
+            });
+        };
+
+        //create new precmds
+        precmdFactory.create = function(precmd) {
+            return $http.post('/precmds', precmd,{headers: {
+                Authorization: 'Bearer '+auth.getToken()}
+            }).success(function(data){
+                precmdFactory.precmds.push(data);
+            });
+        };
+
+        //upvoting plat
+        precmdFactory.complete = function(plat) {
+            return $http.put('/precmds/' + precmd._id + '/complete', null, {
+                headers: {Authorization: 'Bearer '+auth.getToken()}
+            }).success(function(data){
+                precmd.status = true;
+            });
+        };
+
+        //get plat by id
+        precmdFactory.get = function(id) {
+            return $http.get('/precmds/' + id).then(function(res){
+                return res.data;
+            });
+        };
+
+        //delete precmd by id
+        precmdFactory.delete = function(id) {
+            return $http.delete('/precmds/' + id).then(function(res){
+                return res.data;
+            });
+        };
+
+        return precmdFactory;
+
+    }]);
+
 //Create authentication factory
 app.factory('auth', ['$http', '$window', function($http, $window){
         var auth = {};
@@ -145,8 +196,8 @@ app.controller('NavCtrl', ['$scope', 'auth',
 
     }]);
 
-app.controller ('MainCtrl',['$scope','plats','auth','$stateParams',
-    function($scope,plats,auth,$stateParams)
+app.controller ('MainCtrl',['$scope','plats','auth',
+    function($scope,plats,auth)
     {
         $scope.isLoggedIn = auth.isLoggedIn;
         $scope.plats=plats.plats;
@@ -193,3 +244,39 @@ app.controller('PlatCtrl',['$scope','plats','plat','auth',
         };
     }]
 );
+
+app.controller ('PrecmdCtrl',['$scope','precmds','auth',
+    function($scope,precmds,auth)
+    {
+        $scope.isLoggedIn = auth.isLoggedIn;
+        $scope.precmds=precmds.precmds;
+
+
+        $scope.complete=function(precmd)
+        {
+            precmds.complete(precmd);
+        };
+
+        $scope.delete = function(id){
+            precmds.delete(id);
+        };
+
+    }]);
+
+app.controller ('HomeCtrl',['$scope','precmds','auth',
+    function($scope,precmds,auth)
+    {
+        $scope.isLoggedIn = auth.isLoggedIn;
+        $scope.precmds=precmds.precmds;
+
+
+        $scope.complete=function(precmd)
+        {
+            precmds.complete(precmd);
+        };
+
+        $scope.delete = function(id){
+            precmds.delete(id);
+        };
+
+    }]);

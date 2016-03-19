@@ -10,6 +10,8 @@ router.get('/', function(req, res, next) {
 var mongoose = require('mongoose');
 var Plat = mongoose.model('Plat');
 var Dispo = mongoose.model('Dispo');
+var Precmd = mongoose.model('Precmd');
+var Reservation = mongoose.model('Reservation');
 var User = mongoose.model('User');
 var passport = require('passport');
 var jwt = require('express-jwt');
@@ -27,7 +29,7 @@ router.get('/plats', function(req, res, next) {
 //Adds new plat
 router.post('/plats',auth, function(req, res, next) {
   var plat = new Plat(req.body);
-  plat.author = req.payload.username;
+  //plat.author = req.payload.username;
   plat.save(function(err, plat){
     if(err){ return next(err); }
 
@@ -50,7 +52,7 @@ router.param('plat', function(req, res, next, id) {
 
 //returns single plat
 router.get('/plats/:plat',function(req, res, next) {
-  //populate() to retrieve comments along with posts:
+  //populate() to retrieve comments along with plats:
   req.plat.populate('dispos', function(err, plat) {
     if (err) { return next(err); }
 
@@ -131,4 +133,63 @@ router.post('/login', function(req, res, next){
     }
   })(req, res, next);
 });
+
+//returns a JSON object containing all precmds
+router.get('/precmds', function(req, res, next) {
+  Precmd.find(function(err, precmds){
+    if(err){ return next(err); }
+
+    res.json(precmds);
+  });
+});
+
+//Adds new plat
+router.post('/precmds',auth, function(req, res, next) {
+  var precmd = new Precmd(req.body);
+  precmd.username = req.payload.username;
+  precmd.save(function(err, precmd){
+    if(err){ return next(err); }
+
+    res.json(precmd);
+  });
+});
+
+//preloading precmds
+router.param('precmd', function(req, res, next, id) {
+  var query = Precmd.findById(id);
+
+  query.exec(function (err, precmd){
+    if (err) { return next(err); }
+    if (!precmd) { return next(new Error('can\'t find précommande')); }
+
+    req.precmd = precmd;
+    return next();
+  });
+});
+
+//returns single precmd
+router.get('/precmds/:precmd',function(req, res, next) {
+  //populate() to retrieve reservations along with precmds:
+  req.precmd.populate('reservations', function(err, precmd) {
+    if (err) { return next(err); }
+
+    res.json(precmd);
+  });
+});
+
+//create route for complete precmd
+router.put('/precmds/:precmd/complete', function(req, res, next) {
+  req.precmd.complete(function(err, precmd){
+    if (err) { return next(err); }
+
+    res.json(precmd);
+  });
+});
+
+//returns a JSON object containing all precmds unfinished for today
+
+//delete precmd
+
+//returns several history precmds
+
 module.exports = router;

@@ -21,9 +21,8 @@
         <a class="navbar-brand" href="/#/home">WebSiteName</a>
       </div>
       <ul class="nav navbar-nav">
-        <li class="active"><a href="/#/home">Plats</a></li>
-        <li><a href="">Utilisateurs</a></li>
-        <li><a href="">Précommandes</a></li>
+        <li class="active"><a href="/#/plats">Plats</a></li>
+        <li><a href="/#/precmds">Précommandes</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li ng-hide="isLoggedIn()"><a href="/#/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
@@ -42,6 +41,17 @@
 
   <script type="text/ng-template" id ="/home.html">
     <div class="page-header">
+      <h1>Bienvenu au serveur de SPC !</h1>
+    </div>
+
+    <div>
+      <h3>Vous avez <a href="/#/precmds">{{3}} précommandes</a> à traiter.</h3>
+    </div>
+
+  </script>
+
+  <script type="text/ng-template" id ="/plats.html">
+    <div class="page-header">
       <h1>Tous les plats</h1>
     </div>
 
@@ -57,7 +67,7 @@
     </div>
     <hr>
     <div ng-hide="isLoggedIn()">
-      <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a plat.</h3>
+      <h3>Vous devez <a href="/#/login">Se connecter</a> ou <a href="/#/register">S'inscrire</a> avant d'ajouter un plat.</h3>
     </div>
     <form ng-submit="addPlat()" ng-show="isLoggedIn()" style="margin-top:30px;">
 
@@ -91,7 +101,7 @@
     </form>
   </script>
 
-  <script type="text/ng-template" id ="/plats.html">
+  <script type="text/ng-template" id ="/plat.html">
     <div class="page-header">
       <h2>
         <span>{{plat.title}}</span>
@@ -137,7 +147,7 @@
     </table>
     <hr>
     <div ng-hide="isLoggedIn()">
-      <h3>Vous devez <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> avant d'ajouter la disponibilité.</h3>
+      <h3>Vous devez <a href="/#/login">Se connecter</a> ou <a href="/#/register">S'inscrire</a> avant d'ajouter la disponibilité.</h3>
     </div>
     <form ng-submit="addDispo()" ng-show="isLoggedIn()" style="margin-top:30px;">
       <div class="form-group">
@@ -155,6 +165,25 @@
       <hr>
       <button class="btn btn-primary" type="submit" name="button">Ajouter disponibilité</button>
     </form>
+  </script>
+
+  <script type="text/ng-template" id ="/precmds.html">
+    <div class="page-header">
+      <h1>Les précommandes pour aujourd'hui</h1>
+    </div>
+
+    <div ng-hide="isLoggedIn()">
+      <h3>Vous devez <a href="/#/login">Se connecter</a> ou <a href="/#/register">S'inscrire</a> avant de traiter les précommandes.</h3>
+    </div>
+
+    <div ng-show="isLoggedIn()" class="list-group" ng-repeat = "precmd in precmds | orderBy :'-date'">
+        <span style="margin-left:10px; font-size:20px;">
+          <a>{{precmd._id}} - {{precmd.horaire}}</a>
+          <a href="#" ng-click="complete(plat._id)" ng-show="precmd.status">
+            <span class="glyphicon glyphicon-ok"></span>
+          </a>
+        </span>
+    </div>
   </script>
 
   <script type="text/ng-template" id="/register.html">

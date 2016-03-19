@@ -9,7 +9,7 @@ app.config(['$stateProvider', '$urlRouterProvider',
         $stateProvider.state('home',{
                 url:'/home',
                 templateUrl: '/home.html',
-                controller: 'MainCtrl',
+                controller: 'HomeCtrl',
                 resolve: {
                     platPromise: ['plats', function(plats){
                         return plats.getAll();
@@ -17,12 +17,32 @@ app.config(['$stateProvider', '$urlRouterProvider',
                 }
             })
             .state('plats',{
-                url:'/plats/{id}',
+                url:'/plats',
                 templateUrl: '/plats.html',
+                controller: 'MainCtrl',
+                resolve: {
+                    platPromise: ['plats', function(plats){
+                        return plats.getAll();
+                    }]
+                }
+            })
+            .state('plat',{
+                url:'/plats/{id}',
+                templateUrl: '/plat.html',
                 controller: 'PlatCtrl',
                 resolve: {
                     plat: ['$stateParams', 'plats', function($stateParams, plats) {
                         return plats.get($stateParams.id);
+                    }]
+                }
+            })
+            .state('precmds',{
+                url:'/precmds',
+                templateUrl: '/precmds.html',
+                controller: 'PrecmdCtrl',
+                resolve: {
+                    platPromise: ['precmds', function(precmds){
+                        return precmds.getAll();
                     }]
                 }
             })
