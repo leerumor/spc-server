@@ -56,6 +56,13 @@ app.factory('plats',['$http','auth',
                 {headers: {Authorization: 'Bearer '+auth.getToken()}});
         };
 
+        //delete dispo by id
+        platFactory.deleteDispo = function(platId,dispoId) {
+            return $http.delete('/plats/' + platId + '/dispos/' + dispoId).then(function(res){
+                return res.data;
+            });
+        };
+
         return platFactory;
 
     }]);
@@ -85,7 +92,7 @@ app.factory('precmds',['$http','auth',
         };
 
         //upvoting plat
-        precmdFactory.complete = function(plat) {
+        precmdFactory.complete = function(precmd) {
             return $http.put('/precmds/' + precmd._id + '/complete', null, {
                 headers: {Authorization: 'Bearer '+auth.getToken()}
             }).success(function(data){
@@ -96,13 +103,6 @@ app.factory('precmds',['$http','auth',
         //get plat by id
         precmdFactory.get = function(id) {
             return $http.get('/precmds/' + id).then(function(res){
-                return res.data;
-            });
-        };
-
-        //delete precmd by id
-        precmdFactory.delete = function(id) {
-            return $http.delete('/precmds/' + id).then(function(res){
                 return res.data;
             });
         };
@@ -145,14 +145,33 @@ app.factory('auth', ['$http', '$window', function($http, $window){
         };
 
         auth.isAdmin = function(){
-            /*
+
              if(auth.isLoggedIn()){
              var token = auth.getToken();
              var payload = JSON.parse($window.atob(token.split('.')[1]));
 
              return payload.admin;
-             }*/
-            return auth.currentUser()=="admin";
+             }
+        };
+
+        auth.isPreparateur = function(){
+
+            if(auth.isLoggedIn()){
+                var token = auth.getToken();
+                var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+                return payload.preparateur;
+            }
+        };
+
+        auth.isCaissier = function(){
+
+            if(auth.isLoggedIn()){
+                var token = auth.getToken();
+                var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+                return payload.caissier;
+            }
         };
 
         auth.register = function(user){
@@ -237,6 +256,11 @@ app.controller ('MainCtrl',['$scope','plats','auth',
 
         $scope.delete = function(id){
             plats.delete(id);
+            for (var i in $scope.plats) {
+                if ($scope.plats[i]._id === id) {
+                    $scope.plats.splice(i, 1); // remove item from scope
+                }
+            }
         };
 
     }]);
@@ -256,6 +280,14 @@ app.controller('PlatCtrl',['$scope','plats','plat','auth',
                 });
             $scope.dispo = '';
         };
+        $scope.deleteDispo = function(id){
+            plats.deleteDispo(plat._id,id);
+            for (var i in $scope.plat.dispos) {
+                if ($scope.plat.dispos[i]._id === id) {
+                    $scope.plat.dispos.splice(i, 1); // remove item from scope
+                }
+            }
+        };
     }]
 );
 
@@ -264,9 +296,32 @@ app.controller ('PrecmdCtrl',['$scope','precmds','auth',
     {
         $scope.isLoggedIn = auth.isLoggedIn;
         $scope.isAdmin = auth.isAdmin;
+        $scope.isPreparateur = auth.isPreparateur;
+        $scope.isCaissier = auth.isCaissier;
         $scope.precmds=precmds.precmds;
+        $scope.currentUser=auth.currentUser();
 
-
+        $scope.addPrecmd = function(){
+            //if(!$scope.date || $scope.date ===''){return;}
+            precmds.create({
+                precmd:{
+                    nCommande: $scope.nCommande
+                },
+                reservations:{
+                    nCasier:$scope.nCasier,
+                    peri1:$scope.peri1,
+                    peri2:$scope.peri2,
+                    peri3:$scope.peri3,
+                    peri4:$scope.peri4
+                }
+            });
+            $scope.nCommande='';
+            $scope.nCasier='';
+            $scope.peri1='';
+            $scope.peri2='';
+            $scope.peri3='';
+            $scope.peri4='';
+        };
         $scope.complete=function(precmd)
         {
             precmds.complete(precmd);

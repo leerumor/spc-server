@@ -4,6 +4,7 @@
 var mongoose = require('mongoose');
 
 var ReservationSchema = new mongoose.Schema({
+    nCasier:String,
     typePlat: String,
     peri1: String,
     peri2: String,

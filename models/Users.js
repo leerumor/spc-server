@@ -5,6 +5,8 @@ var jwt = require('jsonwebtoken');
 var UserSchema = new mongoose.Schema({
   username: {type: String, lowercase: true, unique: true},
   admin: {type: Boolean, default: false},
+  preparateur: {type: Boolean, default: false},
+  caissier: {type: Boolean, default: false},
   hash: String,
   salt: String
 });
@@ -32,6 +34,8 @@ UserSchema.methods.generateJWT = function() {
     _id: this._id,
     username: this.username,
     admin: this.admin,
+    preparateur: this.preparateur,
+    caissier: this.caissier,
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');
 };

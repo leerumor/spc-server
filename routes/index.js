@@ -27,7 +27,7 @@ router.get('/plats', function(req, res, next) {
 });
 
 //Adds new plat
-router.post('/plats',auth, function(req, res, next) {
+router.post('/plats', function(req, res, next) {
   var plat = new Plat(req.body);
   //plat.author = req.payload.username;
   plat.save(function(err, plat){
@@ -62,8 +62,14 @@ router.get('/plats/:plat',function(req, res, next) {
 
 // delete the plat with this id
 router.delete('/plats/:plat',function(req, res) {
-  plat.remove({
-    _id: req.params._id
+
+  Dispo.remove({
+    plat: new mongoose.Types.ObjectId(req.params.plat)
+  }, function(err){
+    if(err) throw err;
+  });
+  Plat.remove({
+    _id: req.params.plat
   }, function(err, plat) {
     if (err)
       res.send(err);
@@ -73,7 +79,7 @@ router.delete('/plats/:plat',function(req, res) {
 });
 
 //create route for upvote plat
-router.put('/plats/:plat/upvote',auth, function(req, res, next) {
+router.put('/plats/:plat/upvote', function(req, res, next) {
   req.plat.upvote(function(err, plat){
     if (err) { return next(err); }
 
@@ -82,10 +88,9 @@ router.put('/plats/:plat/upvote',auth, function(req, res, next) {
 });
 
 //Adds new dispo
-router.post('/plats/:plat/dispos',auth, function(req, res, next) {
+router.post('/plats/:plat/dispos', function(req, res, next) {
   var dispo = new Dispo(req.body);
   dispo.plat = req.plat;
-  dispo.author = req.payload.username;
   dispo.save(function(err, dispo){
     if(err){ return next(err); }
 
@@ -98,11 +103,30 @@ router.post('/plats/:plat/dispos',auth, function(req, res, next) {
   });
 });
 
+//remove dispo
+router.delete('/plats/:plat/dispos/:dispo',function(req, res) {
+  Dispo.remove({
+    _id: req.params.dispo
+  }, function(err, dispo) {
+    if (err)
+      res.send(err);
+
+    res.json({ message: 'Successfully deleted' });
+  });
+});
+
 //route for register
 router.post('/register', function(req, res, next){
   if(!req.body.username || !req.body.password){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
+  /*
+  // pour éviter les nom répétés
+  var query = User.findOne({username:req.body.username});
+  query.exec(function (err, olduser){
+    if (err) { return next(err); }
+    return res.status(400).json({ message: "Nom d'utilisateur existe!" });
+  });*/
 
   var user = new User();
 
@@ -139,18 +163,36 @@ router.get('/precmds', function(req, res, next) {
   Precmd.find(function(err, precmds){
     if(err){ return next(err); }
 
+    precmds.forEach(function(precmd){
+      precmd.populate('reservations', function(err, precmd) {
+        if (err) { return next(err); }
+        //still the same after push
+        precmds.push(precmd);
+      });
+    });
     res.json(precmds);
   });
 });
 
-//Adds new plat
+//Adds new precmd
 router.post('/precmds',auth, function(req, res, next) {
-  var precmd = new Precmd(req.body);
+  var precmd = new Precmd(req.body.precmd);
   precmd.username = req.payload.username;
   precmd.save(function(err, precmd){
     if(err){ return next(err); }
+    //precmd success
+    var reservation = new Reservation(req.body.reservations);
+    reservation.precmd = precmd;
+    reservation.save(function(err, reservation){
+      if(err){ return next(err); }
 
-    res.json(precmd);
+      precmd.reservations.push(reservation);
+      precmd.save(function(err, precmd) {
+        if(err){ return next(err); }
+
+        res.json(precmd);
+      });
+    });
   });
 });
 
@@ -188,7 +230,7 @@ router.put('/precmds/:precmd/complete', function(req, res, next) {
 
 //returns a JSON object containing all precmds unfinished for today
 
-//delete precmd
+//annuler/preparer/retrait precmd
 
 //returns several history precmds
 

@@ -4,10 +4,14 @@
 var mongoose = require('mongoose');
 
 var PrecmdSchema = new mongoose.Schema({
-    date: Date,
+    date: String,
+    restaurant:String,
     horaire: String,
-    status: {type: Boolean, default: false},
     username: String,
+    nCommande: String,
+    annulation: {type: Boolean, default: false},
+    preparation: {type: Boolean, default: false},
+    retrait: {type: Boolean, default: false},
     reservations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reservation' }]
 });
 

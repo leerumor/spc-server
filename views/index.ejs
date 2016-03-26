@@ -15,7 +15,7 @@
   </head>
   <body ng-app ="SPCserver" ng-controller="MainCtrl" class="container fluid">
 
-  <nav class="navbar navbar-default" ng-controller="NavCtrl">
+  <nav class="navbar navbar-default navbar-fixed-top" ng-controller="NavCtrl">
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="/#/home">SPC serveur</a>
@@ -35,7 +35,7 @@
   </nav>
 
   <div class="row">
-    <div class="col-md-6 col-md-offset-3">
+    <div>
       <div ui-view></div>
     </div>
   </div>
@@ -61,7 +61,7 @@
       {{plat.upvotes}}
         <span style="margin-left:10px; font-size:20px;">
           <a href="#/plats/{{plat._id}}">{{plat.title}}</a>
-          <a href="#" ng-click="delete(plat._id)">
+          <a href="/#/plats" ng-click="delete(plat._id)">
             <span ng-show="isAdmin()" class="glyphicon glyphicon-remove"></span>
           </a>
         </span>
@@ -142,7 +142,7 @@
         <td>{{dispo.jeudi === true ? "Oui" : ""}}</td>
         <td>{{dispo.vendredi === true ? "Oui" : ""}}</td>
         <td>{{dispo.samedi === true ? "Oui" : ""}}</td>
-        <td><button ng-show="isAdmin()" type="button" class="btn btn-default btn-sm">
+        <td><button ng-show="isAdmin()" type="button" class="btn btn-default btn-sm" ng-click="deleteDispo(dispo._id)">
             <span class="glyphicon glyphicon-remove"></span> Remove
           </button>
         </td>
@@ -178,19 +178,56 @@
     <div class="page-header">
       <h1>Les précommandes pour aujourd'hui</h1>
     </div>
+    <div ng-repeat = "precmd in precmds">
+    {{precmd.reservations}}
+      </div>
 
     <div ng-hide="isLoggedIn()">
       <h3>Vous devez <a href="/#/login">Se connecter</a> ou <a href="/#/register">S'inscrire</a> avant de traiter les précommandes.</h3>
     </div>
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>N° de commande</th>
+          <th>N° de casier</th>
+          <th>Périphérique</th>
+          <th>Périphérique</th>
+          <th>Périphérique</th>
+          <th>Périphérique</th>
+          <th>Préparation</th>
+        </tr>
+        </thead>
+        <tbody ng-hide="precmd.annulation" ng-repeat = "precmd in precmds">
+        <tr ng-repeat = "reservation in precmd.reservations">
+          <td>{{precmd.nCommande}}</td>
+          <td>{{reservation.nCasier}}</td>
+          <td>{{reservation.peri1}}</td>
+          <td>{{reservation.peri2}}</td>
+          <td>{{reservation.peri3}}</td>
+          <td>{{reservation.peri4}}</td>
+          <td>
+            <a ng-show="isPreparateur()" ng-click="complete(precmd)">
+              <span ng-hide="precmd.preparation" class="glyphicon glyphicon-ok"></span>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    <hr>
+    <form ng-submit="addPrecmd()" ng-show="isAdmin()" style="margin-top:30px;">
 
-    <div ng-show="isLoggedIn()" class="list-group" ng-repeat = "precmd in precmds | orderBy :'-date'">
-        <span style="margin-left:10px; font-size:20px;">
-          <a>{{precmd._id}} - {{precmd.horaire}}</a>
-          <a href="#" ng-click="complete(plat._id)" ng-show="precmd.status">
-            <span ng-show="isAdmin()" class="glyphicon glyphicon-ok"></span>
-          </a>
-        </span>
-    </div>
+      <div class="form-group">
+        <input class="form-control" placeholder="N° de commande" ng-model="nCommande"></input>
+        <input class="form-control" placeholder="N° de casier" ng-model="nCasier"></input>
+        <input class="form-control" placeholder="Périphérique" ng-model="peri1"></input>
+        <input class="form-control" placeholder="Périphérique" ng-model="peri2"></input>
+        <input class="form-control" placeholder="Périphérique" ng-model="peri3"></input>
+        <input class="form-control" placeholder="Périphérique" ng-model="peri4"></input>
+      </div>
+
+
+      <button class="btn btn-primary" type="submit" ng-click="addPrecmd">Faire une précmd</button>
+    </form>
   </script>
 
   <script type="text/ng-template" id="/register.html">
