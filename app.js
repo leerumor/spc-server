@@ -12,7 +12,6 @@ var app = express();
 require('./models/Plats');
 require('./models/Dispos');
 require('./models/Precmds');
-require('./models/Reservations');
 require('./models/Users');
 
 mongoose.connect('mongodb://admin:testspc@ds019488.mlab.com:19488/testspc');

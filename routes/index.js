@@ -11,7 +11,6 @@ var mongoose = require('mongoose');
 var Plat = mongoose.model('Plat');
 var Dispo = mongoose.model('Dispo');
 var Precmd = mongoose.model('Precmd');
-//var Reservation = mongoose.model('Reservation');
 var User = mongoose.model('User');
 var passport = require('passport');
 var jwt = require('express-jwt');
@@ -163,36 +162,18 @@ router.get('/precmds', function(req, res, next) {
   Precmd.find(function(err, precmds){
     if(err){ return next(err); }
 
-    precmds.forEach(function(precmd){
-      precmd.populate('reservations', function(err, precmd) {
-        if (err) { return next(err); }
-        //still the same after push
-        precmds.push(precmd);
-      });
-    });
     res.json(precmds);
   });
 });
 
 //Adds new precmd
 router.post('/precmds',auth, function(req, res, next) {
-  var precmd = new Precmd(req.body.precmd);
+  var precmd = new Precmd(req.body);
   precmd.username = req.payload.username;
   precmd.save(function(err, precmd){
     if(err){ return next(err); }
-    //precmd success
-    var reservation = new Reservation(req.body.reservations);
-    reservation.precmd = precmd;
-    reservation.save(function(err, reservation){
-      if(err){ return next(err); }
 
-      precmd.reservations.push(reservation);
-      precmd.save(function(err, precmd) {
-        if(err){ return next(err); }
-
-        res.json(precmd);
-      });
-    });
+    res.json(precmd);
   });
 });
 
@@ -202,26 +183,34 @@ router.param('precmd', function(req, res, next, id) {
 
   query.exec(function (err, precmd){
     if (err) { return next(err); }
-    if (!precmd) { return next(new Error('can\'t find précommande')); }
+    if (!precmd) { return next(new Error('can\'t find precmd')); }
 
     req.precmd = precmd;
     return next();
   });
 });
 
-//returns single precmd
-router.get('/precmds/:precmd',function(req, res, next) {
-  //populate() to retrieve reservations along with precmds:
-  req.precmd.populate('reservations', function(err, precmd) {
+//create route for retrait precmd
+router.put('/precmds/:precmd/retraire', function(req, res, next) {
+  req.precmd.retraire(function(err, precmd){
     if (err) { return next(err); }
 
     res.json(precmd);
   });
 });
 
-//create route for complete precmd
-router.put('/precmds/:precmd/complete', function(req, res, next) {
-  req.precmd.complete(function(err, precmd){
+//create route for annuler precmd
+router.put('/precmds/:precmd/annuler', function(req, res, next) {
+  req.precmd.annuler(function(err, precmd){
+    if (err) { return next(err); }
+
+    res.json(precmd);
+  });
+});
+
+//create route for preparer precmd
+router.put('/precmds/:precmd/preparer', function(req, res, next) {
+  req.precmd.preparer(function(err, precmd){
     if (err) { return next(err); }
 
     res.json(precmd);
