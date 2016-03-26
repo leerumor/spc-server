@@ -91,12 +91,28 @@ app.factory('precmds',['$http','auth',
             });
         };
 
-        //upvoting plat
-        precmdFactory.complete = function(precmd) {
-            return $http.put('/precmds/' + precmd._id + '/complete', null, {
+        //retraire precmd
+        precmdFactory.retraire = function(precmd) {
+            return $http.put('/precmds/' + precmd._id + '/retraire', null, {
                 headers: {Authorization: 'Bearer '+auth.getToken()}
             }).success(function(data){
-                precmd.status = true;
+                precmd.retrait = true;
+            });
+        };
+        //retraire annuler
+        precmdFactory.annuler = function(precmd) {
+            return $http.put('/precmds/' + precmd._id + '/annuler', null, {
+                headers: {Authorization: 'Bearer '+auth.getToken()}
+            }).success(function(data){
+                precmd.annulation = true;
+            });
+        };
+        //preparer precmd
+        precmdFactory.preparer = function(precmd) {
+            return $http.put('/precmds/' + precmd._id + '/preparer', null, {
+                headers: {Authorization: 'Bearer '+auth.getToken()}
+            }).success(function(data){
+                precmd.preparation = true;
             });
         };
 
@@ -304,16 +320,14 @@ app.controller ('PrecmdCtrl',['$scope','precmds','auth',
         $scope.addPrecmd = function(){
             //if(!$scope.date || $scope.date ===''){return;}
             precmds.create({
-                precmd:{
-                    nCommande: $scope.nCommande
-                },
-                reservations:{
+                nCommande: $scope.nCommande,
+                reservations:[{
                     nCasier:$scope.nCasier,
                     peri1:$scope.peri1,
                     peri2:$scope.peri2,
                     peri3:$scope.peri3,
                     peri4:$scope.peri4
-                }
+                }]
             });
             $scope.nCommande='';
             $scope.nCasier='';
@@ -322,13 +336,17 @@ app.controller ('PrecmdCtrl',['$scope','precmds','auth',
             $scope.peri3='';
             $scope.peri4='';
         };
-        $scope.complete=function(precmd)
+        $scope.retraire=function(precmd)
         {
-            precmds.complete(precmd);
+            precmds.retraire(precmd);
         };
-
-        $scope.delete = function(id){
-            precmds.delete(id);
+        $scope.preparer=function(precmd)
+        {
+            precmds.preparer(precmd);
+        };
+        $scope.annuler=function(precmd)
+        {
+            precmds.annuler(precmd);
         };
 
     }]);

@@ -178,9 +178,6 @@
     <div class="page-header">
       <h1>Les précommandes pour aujourd'hui</h1>
     </div>
-    <div ng-repeat = "precmd in precmds">
-    {{precmd.reservations}}
-      </div>
 
     <div ng-hide="isLoggedIn()">
       <h3>Vous devez <a href="/#/login">Se connecter</a> ou <a href="/#/register">S'inscrire</a> avant de traiter les précommandes.</h3>
@@ -194,11 +191,12 @@
           <th>Périphérique</th>
           <th>Périphérique</th>
           <th>Périphérique</th>
-          <th>Préparation</th>
+          <th ng-show="isCaissier()">Retrait</th>
+          <th ng-show="isPreparateur()">Préparation</th>
         </tr>
         </thead>
-        <tbody ng-hide="precmd.annulation" ng-repeat = "precmd in precmds">
-        <tr ng-repeat = "reservation in precmd.reservations">
+        <tbody ng-repeat = "precmd in precmds">
+        <tr ng-repeat = "reservation in precmd.reservations" ng-hide="reservation.annulation">
           <td>{{precmd.nCommande}}</td>
           <td>{{reservation.nCasier}}</td>
           <td>{{reservation.peri1}}</td>
@@ -206,7 +204,10 @@
           <td>{{reservation.peri3}}</td>
           <td>{{reservation.peri4}}</td>
           <td>
-            <a ng-show="isPreparateur()" ng-click="complete(precmd)">
+            <a ng-show="isCaissier()" ng-click="retraire(precmd)">
+              <span ng-hide="precmd.retrait" class="glyphicon glyphicon-ok"></span>
+            </a>
+            <a ng-show="isPreparateur()" ng-click="preparer(precmd)">
               <span ng-hide="precmd.preparation" class="glyphicon glyphicon-ok"></span>
             </a>
           </td>
