@@ -11,8 +11,8 @@ app.config(['$stateProvider', '$urlRouterProvider',
                 templateUrl: '/home.html',
                 controller: 'HomeCtrl',
                 resolve: {
-                    platPromise: ['plats', function(plats){
-                        return plats.getAll();
+                    precmdPromise: ['precmds', function(precmds){
+                        return precmds.count();
                     }]
                 }
             })

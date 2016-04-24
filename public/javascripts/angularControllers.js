@@ -81,6 +81,21 @@ app.factory('precmds',['$http','auth',
                 angular.copy(data, precmdFactory.precmds);
             });
         };
+        
+        //retrieve precmds according to user
+        precmdFactory.getMy = function() {
+            return $http.get('/myprecmds').success(function(data){
+                angular.copy(data, precmdFactory.precmds);
+            });
+        };
+        
+        //count precmds à traiter
+        precmdFactory.count = function() {
+            return $http.get('/home').success(function(count){
+                precmdFactory.precmdAPreparer=count.count1;
+                precmdFactory.precmdARetraire=count.count2;
+            });
+        };
 
         //create new precmds
         precmdFactory.create = function(precmd) {
@@ -88,6 +103,13 @@ app.factory('precmds',['$http','auth',
                 Authorization: 'Bearer '+auth.getToken()}
             }).success(function(data){
                 precmdFactory.precmds.push(data);
+            });
+        };
+        
+        //distribution
+        precmdFactory.distribution = function() {
+            return $http.get('/precmds/distribution').success(function(data){
+                angular.copy(data, precmdFactory.precmds);
             });
         };
 
@@ -99,7 +121,7 @@ app.factory('precmds',['$http','auth',
                 precmd.retrait = true;
             });
         };
-        //retraire annuler
+        //annuler
         precmdFactory.annuler = function(precmd) {
             return $http.put('/precmds/' + precmd._id + '/annuler', null, {
                 headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -241,7 +263,7 @@ app.controller('NavCtrl', ['$scope', 'auth',
         $scope.logOut = auth.logOut;
 
     }]);
-
+//controller du page plats
 app.controller ('MainCtrl',['$scope','plats','auth',
     function($scope,plats,auth)
     {
@@ -280,7 +302,7 @@ app.controller ('MainCtrl',['$scope','plats','auth',
         };
 
     }]);
-
+//détails de chaque plat
 //We can use $stateParams to retrieve the id from the URL and load the appropriate post.
 app.controller('PlatCtrl',['$scope','plats','plat','auth',
     function($scope,plats,plat,auth)
@@ -306,7 +328,7 @@ app.controller('PlatCtrl',['$scope','plats','plat','auth',
         };
     }]
 );
-
+//page precmd
 app.controller ('PrecmdCtrl',['$scope','precmds','auth',
     function($scope,precmds,auth)
     {
@@ -316,25 +338,79 @@ app.controller ('PrecmdCtrl',['$scope','precmds','auth',
         $scope.isCaissier = auth.isCaissier;
         $scope.precmds=precmds.precmds;
         $scope.currentUser=auth.currentUser();
-
+        
+        $scope.precmdE = [ ];
+        $scope.precmdE.restaurant = "Sully";
+        $scope.plagehoraire = [
+            {id:1,label:'11:30 - 11:40'},
+            {id:2,label:'11:40 - 11:50'},
+            {id:3,label:'11:50 - 12:00'},
+            {id:4,label:'12:00 - 12:10'},
+            {id:5,label:'12:10 - 12:20'},
+            {id:6,label:'12:20 - 12:30'},
+            {id:7,label:'12:30 - 12:40'},
+            {id:8,label:'12:40 - 12:50'},
+            {id:9,label:'12:50 - 13:00'},
+            {id:10,label:'13:00 - 13:10'}
+          ];    
+         $scope.date = function() {
+            var today = new Date();
+            var dd = today.getDate();
+            if($scope.precmdE.jour == "Demain")
+              {dd++;}
+            var mm = today.getMonth()+1; //January is 0!
+            var yyyy = today.getFullYear();
+            if(dd<10) {
+                dd='0'+dd
+            } 
+            if(mm<10) {
+                mm='0'+mm
+            }
+            $scope.precmdE.date = dd+'/'+mm+'/'+yyyy;
+            //console.log($scope.precmdE.date);
+          }
+        $scope.typePlat = [
+            {id:1,label:'Plat traditionnel'},
+            {id:2,label:'Plat végétarien'},
+            {id:3,label:'Pâte'},
+            {id:4,label:'Pizza'}
+          ];
+          $scope.peripheriques = [
+            {id:1,label:"Salade",type:"Entrée"},
+            {id:2,label:"Saumon",type:"Entrée"},
+            {id:3,label:"Jambon",type:"Entrée"},
+            {id:4,label:"Pomme",type:"Fruit"},
+            {id:5,label:"Soupe de carottes",type:"Soupe"},
+            {id:6,label:"Eclair",type:"Dessert"},
+          ];
+          $scope.boissons = [
+            {id:1,label:'Non'},
+            {id:2,label:'Coca'},
+            {id:3,label:'Cristal'}
+          ];
+          $scope.precmdE.horaire = $scope.plagehoraire[0];
+          $scope.precmdE.typePlat = $scope.typePlat[0];
+          $scope.precmdE.peri1 = $scope.peripheriques[0];
+          $scope.precmdE.peri2 = $scope.peripheriques[0];
+          $scope.precmdE.peri3 = $scope.peripheriques[0];
+          $scope.precmdE.peri4 = $scope.peripheriques[0];
+          $scope.precmdE.boisson = $scope.boissons[0];
+       
         $scope.addPrecmd = function(){
             //if(!$scope.date || $scope.date ===''){return;}
+            //console.log($scope.precmdE);
             precmds.create({
-                nCommande: $scope.nCommande,
-                reservations:[{
-                    nCasier:$scope.nCasier,
-                    peri1:$scope.peri1,
-                    peri2:$scope.peri2,
-                    peri3:$scope.peri3,
-                    peri4:$scope.peri4
-                }]
+                date: $scope.precmdE.date,
+                restaurant:$scope.precmdE.restaurant,
+                horaire: $scope.precmdE.horaire.id,
+                typePlat: $scope.precmdE.typePlat.label,
+                peri1: $scope.precmdE.peri1.label,
+                peri2: $scope.precmdE.peri2.label,
+                peri3: $scope.precmdE.peri3.label,
+                peri4: $scope.precmdE.peri4.label,
+                boisson: $scope.precmdE.boisson.label
             });
-            $scope.nCommande='';
-            $scope.nCasier='';
-            $scope.peri1='';
-            $scope.peri2='';
-            $scope.peri3='';
-            $scope.peri4='';
+            
         };
         $scope.retraire=function(precmd)
         {
@@ -348,15 +424,22 @@ app.controller ('PrecmdCtrl',['$scope','precmds','auth',
         {
             precmds.annuler(precmd);
         };
+        $scope.distribution=function()
+        {
+            precmds.distribution();
+        };
 
     }]);
-
+//page accueil
 app.controller ('HomeCtrl',['$scope','precmds','auth',
     function($scope,precmds,auth)
     {
         $scope.isLoggedIn = auth.isLoggedIn;
         $scope.precmds=precmds.precmds;
-
+        $scope.precmdARetraire = precmds.precmdARetraire;
+        $scope.precmdAPreparer = precmds.precmdAPreparer;
+        
+        console.log($scope.precmdAPreparer,$scope.precmdARetraire);
 
         $scope.complete=function(precmd)
         {

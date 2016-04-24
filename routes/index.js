@@ -20,7 +20,6 @@ var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 router.get('/plats', function(req, res, next) {
   Plat.find(function(err, plats){
     if(err){ return next(err); }
-
     res.json(plats);
   });
 });
@@ -150,6 +149,7 @@ router.post('/login', function(req, res, next){
     if(err){ return next(err); }
 
     if(user){
+      
       return res.json({token: user.generateJWT()});
     } else {
       return res.status(401).json(info);
@@ -166,14 +166,78 @@ router.get('/precmds', function(req, res, next) {
   });
 });
 
+//returns a JSON object containing my precmds
+router.get('/myprecmds',auth, function(req, res, next) {
+  Precmd.find({username: req.payload.username}).sort('-date').exec(function (err, precmds) {
+    if (err) return next(err);
+    
+    res.json(precmds);
+  });
+});
+
+//returns number of precmds à traiter (caissier)
+router.get('/home', function(req, res, next) {
+  var count = {count1:0,count2:0};
+  Precmd.count({ preparation:false },function(err, count1){
+    if(err){ return next(err); }
+    count.count1 = count1 ;
+  });
+  Precmd.count({ retrait:false },function(err, count2){
+    if(err){ return next(err); }
+    count.count2 = count2 ;
+    res.json(count);
+  });
+});
+
 //Adds new precmd
 router.post('/precmds',auth, function(req, res, next) {
   var precmd = new Precmd(req.body);
   precmd.username = req.payload.username;
-  precmd.save(function(err, precmd){
+  Precmd.count({ 
+    date:precmd.date,
+    horaire:precmd.horaire
+  },function(err, count){
     if(err){ return next(err); }
+    
+    if(count<40){
+       precmd.nCommande=(precmd.horaire-1)*40 + count + 1;
+       precmd.save(function(err, precmd){
+        if(err){ return next(err); }
+    
+        res.json(precmd);
+      });
+    }
+  });
+});
 
-    res.json(precmd);
+//distribution
+router.get('/precmds/distribution', function(req, res, next) {
+  //get today's date
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+  if(dd<10) {
+      dd='0'+dd
+  } 
+  if(mm<10) {
+      mm='0'+mm
+  }
+  Precmd.find({
+    date: dd+'/'+mm+'/'+yyyy,
+    annulation: false
+  }).sort('nCommande').exec(function (err, precmds) {
+    if (err) return next(err);
+    //numéroter les commandes
+    var count=0;
+    for(var i in precmds){
+      count++;
+      if(count>150) count = count - 150;
+      precmds[i].nCasier=count;
+      Precmd.findByIdAndUpdate(precmds[i]._id, { $set: { nCasier: count }}, function (err, precmd) {
+        if (err) return next(err);});
+    }
+    res.json(precmds);
   });
 });
 

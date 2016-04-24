@@ -6,21 +6,19 @@ var mongoose = require('mongoose');
 var PrecmdSchema = new mongoose.Schema({
     date: String,
     restaurant:String,
-    horaire: String,
+    horaire: Number,
     username: String,
-    nCommande: String,
+    nCommande: {type: Number, default: 0},
+    nCasier:{type: Number, default: 0},
     retrait: {type: Boolean, default: false},
     annulation: {type: Boolean, default: false},
     preparation: {type: Boolean, default: false},
-    reservations: [{
-        nCasier:String,
-        typePlat: String,
-        peri1: String,
-        peri2: String,
-        peri3: String,
-        peri4: String,
-        boisson: String
-    }]
+    typePlat: String,
+    peri1: String,
+    peri2: String,
+    peri3: String,
+    peri4: String,
+    boisson: String
 });
 
 //when the precmd has been prepared
