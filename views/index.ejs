@@ -186,8 +186,8 @@
         <input class="form-control" placeholder="DD/MM/YYYY" type="text" ng-model="dateConsult">
       </div>
    
-    <button type="button" class="btn btn-danger btn-block" ng-click="distribution()">Démarrer la distribution des n°Casiers pour aujourd'hui avant la préparation!</button>
-    <p>*Le système de précommande ferme à 10:30</p>
+    <button type="button" ng-show="isPreparateur()" class="btn btn-danger btn-block" ng-click="distribution()">Démarrer la distribution des n°Casiers pour aujourd'hui avant la préparation!</button>
+    <p ng-show="isPreparateur()">*Le système de précommande ferme à 10:30</p>
     <hr>
     <div ng-hide="isLoggedIn()">
       <h3>Vous devez <a href="/#/login">Se connecter</a> ou <a href="/#/register">S'inscrire</a> avant de traiter les précommandes.</h3>
@@ -216,12 +216,12 @@
           <td>{{precmd.peri3}}</td>
           <td>{{precmd.peri4}}</td>
           <td>
-            <button ng-hide="precmd.preparation" ng-show="isPreparateur()" type="button" class="btn btn-default btn-sm" ng-click="preparer(precmd)">
+            <button ng-show="isPreparateur() && !precmd.preparation && !precmd.retrait" type="button" class="btn btn-default btn-sm" ng-click="preparer(precmd)">
             <span class="glyphicon glyphicon-ok"></span>
             </button>
           </td>
           <td>
-            <button ng-hide="precmd.retrait" ng-show="isCaissier()" type="button" class="btn btn-default btn-sm" ng-click="retraire(precmd)">
+            <button ng-show="isCaissier() && !precmd.retrait && precmd.preparation" type="button" class="btn btn-default btn-sm" ng-click="retraire(precmd)">
             <span class="glyphicon glyphicon-ok"></span>
             </button></td>
         </tr>
@@ -271,13 +271,13 @@
         </div>
         <select ng-options="peripherique.label group by peripherique.type for peripherique in peripheriques " ng-model="precmdE.peri2"></select>
       </label>
-      <label class="item item-input item-select" ng-show="reservation.typePlat.id<3">
+      <label class="item item-input item-select" ng-show="precmdE.typePlat.id<3">
         <div class="input-label">
           Périphérique 3
         </div>
         <select ng-options="peripherique.label group by peripherique.type for peripherique in peripheriques " ng-model="precmdE.peri3"></select>
       </label>
-      <label class="item item-input item-select" ng-show="reservation.typePlat.id===2">
+      <label class="item item-input item-select" ng-show="precmdE.typePlat.id===2">
         <div class="input-label">
           Périphérique 4
         </div>

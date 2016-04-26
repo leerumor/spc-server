@@ -389,12 +389,12 @@ app.controller ('PrecmdCtrl',['$scope','precmds','auth',
             {id:3,label:'Cristal'}
           ];
           $scope.precmdE.horaire = $scope.plagehoraire[0];
-          $scope.precmdE.typePlat = $scope.typePlat[0];
-          $scope.precmdE.peri1 = $scope.peripheriques[0];
-          $scope.precmdE.peri2 = $scope.peripheriques[0];
-          $scope.precmdE.peri3 = $scope.peripheriques[0];
-          $scope.precmdE.peri4 = $scope.peripheriques[0];
-          $scope.precmdE.boisson = $scope.boissons[0];
+        $scope.precmdE.typePlat = $scope.typePlat[0];
+        $scope.precmdE.peri1 = $scope.peripheriques[1];
+        $scope.precmdE.peri2 = $scope.peripheriques[1];
+        $scope.precmdE.peri3 = $scope.peripheriques[0];
+        $scope.precmdE.peri4 = $scope.peripheriques[0];
+        $scope.precmdE.boisson = $scope.boissons[0];
        
         $scope.addPrecmd = function(){
             //if(!$scope.date || $scope.date ===''){return;}

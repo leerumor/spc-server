@@ -166,14 +166,7 @@ router.get('/precmds', function(req, res, next) {
   });
 });
 
-//returns a JSON object containing my precmds
-router.get('/myprecmds',auth, function(req, res, next) {
-  Precmd.find({username: req.payload.username}).sort('-date').exec(function (err, precmds) {
-    if (err) return next(err);
-    
-    res.json(precmds);
-  });
-});
+
 
 //returns number of precmds à traiter (caissier)
 router.get('/home', function(req, res, next) {
@@ -182,7 +175,7 @@ router.get('/home', function(req, res, next) {
     if(err){ return next(err); }
     count.count1 = count1 ;
   });
-  Precmd.count({ retrait:false },function(err, count2){
+  Precmd.count({ preparation:true, retrait:false },function(err, count2){
     if(err){ return next(err); }
     count.count2 = count2 ;
     res.json(count);
